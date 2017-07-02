@@ -1,8 +1,8 @@
 package com.viovie.alarmclock;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
-    private Context mContext;
+    private AppCompatActivity mContext;
     private LayoutInflater mLayoutInflater;
     private List<AlarmItem> mList;
     private List<View> mItemList;
     private List<View> mDeleteList;
 
-    public ItemAdapter(Context context, @NonNull List<AlarmItem> list) {
+    public ItemAdapter(AppCompatActivity context, @NonNull List<AlarmItem> list) {
         mContext = context;
         mLayoutInflater = LayoutInflater.from(mContext);
         mList = list;
@@ -42,7 +42,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 int pos = (int)v.getTag();
                 Intent intent = new Intent(mContext, EditActivity.class);
                 intent.putExtra(EditActivity.PARAM_ITEM, mList.get(pos));
-                mContext.startActivity(intent);
+                intent.putExtra(EditActivity.PARAM_ITEM_POSITION, pos);
+                mContext.startActivityForResult(intent, MainActivity.REQUEST_UPDATE);
             }
         });
         mItemList.add(holder.itemView);
@@ -66,6 +67,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 }
                 mDeleteList.remove(pos);
                 mItemList.remove(pos);
+                DataStorage.delete(mContext, pos);
             }
         });
         mDeleteList.add(holder.deleteImage);

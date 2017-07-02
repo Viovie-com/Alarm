@@ -2,11 +2,13 @@ package com.viovie.alarmclock;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -21,6 +23,7 @@ import java.util.Calendar;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String PARAM_ITEM = "EditActivity.item";
+    public static final String PARAM_ITEM_POSITION = "EditActivity.item.position";
 
     private TextView mDateText;
     private TextView mTimeText;
@@ -30,6 +33,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     private EditText mTitleInput;
     private EditText mContentInput;
 
+    private int mPosition;
     private AlarmItem mAlarmItem;
     private int mYear;
     private int mMonth;
@@ -47,6 +51,16 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         initialView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_edit, menu);
+        for (int i = 0, n = menu.size() ; i < n ; i++) {
+            Drawable icon = menu.getItem(i).getIcon();
+            icon.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
+        }
+        return true;
+    }
+
     private void setActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -59,8 +73,12 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initialData() {
         mAlarmItem = new AlarmItem();
+        mPosition = -1;
         if (getIntent().getExtras() != null) {
-            mAlarmItem = (AlarmItem)getIntent().getExtras().get(PARAM_ITEM);
+            Bundle bundle = getIntent().getExtras();
+            mAlarmItem = (AlarmItem)bundle.get(PARAM_ITEM);
+            mPosition = bundle.getInt(PARAM_ITEM_POSITION, -1);
+            bundle = null;
         }
 
         Calendar calendar = mAlarmItem.datetime;
@@ -97,6 +115,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mRepeatCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mAlarmItem.isRepeat = isChecked;
                 mWeekLayout.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
         });
@@ -121,6 +140,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mYear = year;
                 mMonth = month;
                 mDay = dayOfMonth;
+                mAlarmItem.datetime.set(mYear, mMonth, mDay);
                 mDateText.setText(String.format("%d-%d-%d", year, month+1, dayOfMonth));
             }
         }, year, month, day).show();
@@ -132,6 +152,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 mHour = hourOfDay;
                 mMinute = minute;
+                mAlarmItem.datetime.set(mYear, mMonth, mDay, mHour, mMinute);
                 mTimeText.setText(String.format("%d:%d", hourOfDay, minute));
             }
         }, hour, minute, true).show();
@@ -145,8 +166,28 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
+            case android.R.id.home: {
+                setResult(RESULT_CANCELED);
                 finish();
+                break;
+            }
+            case R.id.action_save: {
+                mAlarmItem.title = mTitleInput.getText().toString();
+                mAlarmItem.content = mContentInput.getText().toString();
+
+                if (mPosition >= 0) {
+                    DataStorage.update(this, mPosition, mAlarmItem);
+                } else {
+                    DataStorage.add(this, mAlarmItem);
+                }
+
+                Intent intent = new Intent();
+                intent.putExtra(PARAM_ITEM, mAlarmItem);
+                intent.putExtra(PARAM_ITEM_POSITION, mPosition);
+                setResult(RESULT_OK, intent);
+                finish();
+                break;
+            }
         }
         return super.onOptionsItemSelected(item);
     }

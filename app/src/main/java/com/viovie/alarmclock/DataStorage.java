@@ -1,6 +1,7 @@
 package com.viovie.alarmclock;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -14,7 +15,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataSorage {
+public class DataStorage {
     private static final String FILENAME = "alarm.items";
 
     public static void save(Context context, List<AlarmItem> list) {
@@ -24,7 +25,7 @@ public class DataSorage {
             fos.write(data.getBytes());
             fos.close();
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -46,8 +47,31 @@ public class DataSorage {
             list = new Gson().fromJson(data, listType);
         } catch (IOException e) {
             list = new ArrayList<>();
+            e.printStackTrace();
         }
 
         return list;
+    }
+
+    public static void add(Context context, AlarmItem item) {
+        List<AlarmItem> list = read(context);
+        list.add(item);
+        save(context, list);
+    }
+
+    public static void update(Context context, int position, AlarmItem item) {
+        List<AlarmItem> list = read(context);
+        if (position >= list.size()) return;
+
+        list.set(position, item);
+        save(context, list);
+    }
+
+    public static void delete(Context context, int position) {
+        List<AlarmItem> list = read(context);
+        if (position >= list.size()) return;
+
+        list.remove(position);
+        save(context, list);
     }
 }
