@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -19,19 +20,22 @@ import android.widget.TimePicker;
 import java.util.Calendar;
 
 public class EditActivity extends AppCompatActivity implements View.OnClickListener {
+    public static final String PARAM_ITEM = "EditActivity.item";
 
     private TextView mDateText;
     private TextView mTimeText;
     private CheckBox mRepeatCheckbox;
     private LinearLayout mWeekLayout;
     private TextView[] mWeekText;
+    private EditText mTitleInput;
+    private EditText mContentInput;
 
+    private AlarmItem mAlarmItem;
     private int mYear;
     private int mMonth;
     private int mDay;
     private int mHour;
     private int mMinute;
-    private boolean[] mWeekSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +58,17 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initialData() {
-        Calendar calendar = Calendar.getInstance();
+        mAlarmItem = new AlarmItem();
+        if (getIntent().getExtras() != null) {
+            mAlarmItem = (AlarmItem)getIntent().getExtras().get(PARAM_ITEM);
+        }
+
+        Calendar calendar = mAlarmItem.datetime;
         mYear = calendar.get(Calendar.YEAR);
         mMonth = calendar.get(Calendar.MONTH);
         mDay = calendar.get(Calendar.DAY_OF_MONTH);
         mHour = calendar.get(Calendar.HOUR_OF_DAY);
         mMinute = calendar.get(Calendar.MINUTE);
-
-        mWeekSelected = new boolean[7];
     }
 
     private void initialView() {
@@ -77,6 +84,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mWeekText[4] = (TextView) findViewById(R.id.text_week_5);
         mWeekText[5] = (TextView) findViewById(R.id.text_week_6);
         mWeekText[6] = (TextView) findViewById(R.id.text_week_7);
+        mTitleInput = (EditText) findViewById(R.id.input_title);
+        mContentInput = (EditText) findViewById(R.id.input_content);
 
         mDateText.setText(String.format("%d-%d-%d", mYear, mMonth+1, mDay));
         mDateText.setOnClickListener(this);
@@ -84,6 +93,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mTimeText.setText(String.format("%d:%d", mHour, mMinute));
         mTimeText.setOnClickListener(this);
 
+        mRepeatCheckbox.setChecked(mAlarmItem.isRepeat);
         mRepeatCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -95,10 +105,13 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
         for (int i = 0 ; i < mWeekText.length ; i++) mWeekText[i].setOnClickListener(this);
         if (mRepeatCheckbox.isChecked()) {
-            for (int i = 0 ; i < mWeekSelected.length ; i++) {
-                mWeekText[i].setBackgroundResource(mWeekSelected[i] ? R.drawable.week_selected : 0);
+            for (int i = 0 ; i < mAlarmItem.weekRepeat.length ; i++) {
+                mWeekText[i].setBackgroundResource(mAlarmItem.weekRepeat[i] ? R.drawable.week_selected : 0);
             }
         }
+
+        mTitleInput.setText(mAlarmItem.title);
+        mContentInput.setText(mAlarmItem.content);
     }
 
     private void createDatePicker(int year, int month, int day) {
@@ -125,8 +138,8 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setWeekTextBackground(int day) {
-        mWeekSelected[day] = !mWeekSelected[day];
-        mWeekText[day].setBackgroundResource(mWeekSelected[day] ? R.drawable.week_selected : 0);
+        mAlarmItem.weekRepeat[day] = !mAlarmItem.weekRepeat[day];
+        mWeekText[day].setBackgroundResource(mAlarmItem.weekRepeat[day] ? R.drawable.week_selected : 0);
     }
 
     @Override
