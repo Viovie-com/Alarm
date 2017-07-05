@@ -177,8 +177,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (mPosition >= 0) {
                     DataStorage.update(this, mPosition, mAlarmItem);
+                    AlarmHelper.update(this, mPosition, mAlarmItem);
                 } else {
-                    DataStorage.add(this, mAlarmItem);
+                    int position = DataStorage.add(this, mAlarmItem);
+                    AlarmHelper.create(this, position, mAlarmItem);
                 }
 
                 Intent intent = new Intent();

@@ -53,10 +53,17 @@ public class DataStorage {
         return list;
     }
 
-    public static void add(Context context, AlarmItem item) {
+    /**
+     *
+     * @param context
+     * @param item
+     * @return position
+     */
+    public static int add(Context context, AlarmItem item) {
         List<AlarmItem> list = read(context);
         list.add(item);
         save(context, list);
+        return list.size()-1;
     }
 
     public static void update(Context context, int position, AlarmItem item) {
