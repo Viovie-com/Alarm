@@ -8,7 +8,7 @@ import java.util.Calendar;
 public class AlarmItem implements Parcelable {
     public Calendar datetime;
     public boolean isRepeat;
-    public boolean[] weekRepeat;
+    public boolean[] weekRepeat; // 0: Sunday
     public String title;
     public String content;
 
@@ -63,5 +63,26 @@ public class AlarmItem implements Parcelable {
         return String.format("%d:%d",
                 datetime.get(Calendar.HOUR_OF_DAY),
                 datetime.get(Calendar.MINUTE));
+    }
+
+    public void useNextTime() {
+        if (isRepeat) {
+            boolean isFirstSunday = (datetime.getFirstDayOfWeek() == Calendar.SUNDAY);
+            int weekday = datetime.get(Calendar.DAY_OF_WEEK);
+            if (isFirstSunday) {
+                weekday -= 1;
+            } else if (weekday == 7) {
+                weekday = 0;
+            }
+
+            int add = 1;
+            for (int i = 1 ; i < 8 ; i++) {
+                if (weekRepeat[(weekday + i) % 7]) {
+                    add = i;
+                    break;
+                }
+            }
+            datetime.add(Calendar.DAY_OF_MONTH, add);
+        }
     }
 }

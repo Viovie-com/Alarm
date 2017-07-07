@@ -18,6 +18,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         AlarmItem item = intent.getParcelableExtra(PARAM_ALARM_ITEM);
         int position = intent.getIntExtra(PARAM_POSITION, 0);
 
+        // update data and alarm
+        if (item.isRepeat) {
+            item.useNextTime();
+            DataStorage.update(context, position, item);
+            AlarmHelper.update(context, position, item);
+        }
+
         Intent newIntent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, newIntent,
