@@ -152,7 +152,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 mHour = hourOfDay;
                 mMinute = minute;
-                mAlarmItem.datetime.set(mYear, mMonth, mDay, mHour, mMinute);
+                mAlarmItem.datetime.set(mYear, mMonth, mDay, mHour, mMinute, 0);
                 mTimeText.setText(String.format("%d:%d", hourOfDay, minute));
             }
         }, hour, minute, true).show();
