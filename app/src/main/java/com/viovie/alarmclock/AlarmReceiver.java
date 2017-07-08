@@ -37,6 +37,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setContentText(item.content)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
+                .setVibrate(new long[] {3000})
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =
