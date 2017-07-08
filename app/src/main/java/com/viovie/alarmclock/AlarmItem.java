@@ -60,7 +60,7 @@ public class AlarmItem implements Parcelable {
     }
 
     public String getTime() {
-        return String.format("%d:%d",
+        return String.format("%02d:%02d",
                 datetime.get(Calendar.HOUR_OF_DAY),
                 datetime.get(Calendar.MINUTE));
     }

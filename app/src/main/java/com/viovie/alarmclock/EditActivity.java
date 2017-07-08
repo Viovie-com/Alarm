@@ -108,7 +108,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         mDateText.setText(String.format("%d-%d-%d", mYear, mMonth+1, mDay));
         mDateText.setOnClickListener(this);
 
-        mTimeText.setText(String.format("%d:%d", mHour, mMinute));
+        mTimeText.setText(String.format("%02d:%02d", mHour, mMinute));
         mTimeText.setOnClickListener(this);
 
         mRepeatCheckbox.setChecked(mAlarmItem.isRepeat);
@@ -153,7 +153,7 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
                 mHour = hourOfDay;
                 mMinute = minute;
                 mAlarmItem.datetime.set(mYear, mMonth, mDay, mHour, mMinute, 0);
-                mTimeText.setText(String.format("%d:%d", hourOfDay, minute));
+                mTimeText.setText(String.format("%02d:%02d", hourOfDay, minute));
             }
         }, hour, minute, true).show();
     }
